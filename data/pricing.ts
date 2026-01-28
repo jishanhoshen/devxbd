@@ -1,0 +1,70 @@
+import { IPricingPlan } from "@/types";
+import { RocketIcon, UserIcon, UsersIcon } from "lucide-react";
+
+export const pricing: IPricingPlan[] = [
+    {
+        icon: RocketIcon,
+        name: "Starter",
+        description: "For small personal or demo projects.",
+        price: 200,
+        linkText: "Start Free",
+        linkUrl: "#",
+        features: [
+            "Up to 1 small project",
+            "Tailwind CSS integration",
+            "Static website or simple web app",
+            "Basic support",
+        ],
+        size: "small",
+    },
+    {
+        icon: UserIcon,
+        name: "Professional",
+        description: "For medium projects or startups.",
+        price: 600,
+        linkText: "Get Professional",
+        linkUrl: "#",
+        features: [
+            "starter features plus",
+            "Full Stack (React + Laravel)",
+            "API integrations",
+            "monitoring & testing",
+            "Standard support",
+        ],
+        size: "small",
+    },
+    {
+        icon: UsersIcon,
+        name: "Advanced",
+        type: "popular",
+        description: "For growing businesses or complex projects.",
+        price: 1200,
+        linkText: "Upgrade to Advanced",
+        linkUrl: "#",
+        features: [
+            "professional features plus",
+            "Project Planning & Consultation",
+            "Database design & optimization",
+            "API documentation & integration",
+            "Priority support and maintenance",
+        ],
+        size: "large",
+    },
+    {
+        icon: UserIcon,
+        name: "Enterprise",
+        type: "enterprise",
+        description: "Custom solutions for large or highly customized project",
+        price: 3000,
+        linkText: "Contact Me",
+        linkUrl: "#",
+        features: [
+            "advanced features plus",
+            "Enterprise-level solutions & infrastructure",
+            "Advanced security and scalability",
+            "Dedicated support & maintenance",
+            "Custom feature development",
+        ],
+        size: "large",
+    },
+];
