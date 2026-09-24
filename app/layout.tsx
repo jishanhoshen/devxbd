@@ -15,10 +15,11 @@ const urbanist = Urbanist({
     subsets: ["latin"],
 });
 
-const title = "Jishan Hoshen Jibon | Dev x BD";
-const description = "Jishan Hoshen Jibon is a skilled developer specializing in building modern web applications and AI-powered solutions. Explore his portfolio and learn more about his work.";
+const title = "Jishan Hoshen Jibon | Full-Stack & AI Developer Portfolio";
+const description = "Skilled developer building modern web apps and AI-powered solutions. Explore Jishan Hoshen Jibon's portfolio.";
 
 export const metadata: Metadata = {
+    metadataBase: new URL("https://devxbd.com"),
     title: {
         default: title,
         template: "%s | Dev x BD",
@@ -75,7 +76,7 @@ export const metadata: Metadata = {
         "Tech Community",
         "Career in Tech",
         "Tech Trends",
-        "Future of Technology", 
+        "Future of Technology",
     ],
     authors: [{ name: "Jishan Hoshen Jibon" }],
     creator: "Jishan Hoshen Jibon",
@@ -89,11 +90,21 @@ export const metadata: Metadata = {
         title: title,
         description: description,
         type: "website",
+        url: "/",
+        images: [
+            {
+                url: "/assets/opengraph-image.png",
+                width: 1200,
+                height: 630,
+                alt: "Jishan Hoshen Jibon Portfolio",
+            },
+        ],
     },
     twitter: {
         card: "summary_large_image",
         title: title,
         description: description,
+        images: ["/assets/opengraph-image.png"],
     },
 };
 export default function RootLayout({
