@@ -2,11 +2,12 @@ version: "3.9"
 
 services:
   nextjs:
-    image: nextjs
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: devxbd
     ports:
       - "8001:3000"
-    volumes:
-      - .:/app
-    working_dir: /app
     restart: unless-stopped
+    environment:
+      - NODE_ENV=production
