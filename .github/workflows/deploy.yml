@@ -1,0 +1,106 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} << 'ENDSSH'
+            cd ~/htdocs/devxbd.com  # UPDATE THIS PATH to your app directory on VPS
+            git pull origin main
+            docker-compose down
+            docker-compose build --no-cache
+            docker-compose up -d
+            docker system prune -f
+          ENDSSH
+
+      - name: Send Discord Notification
+        if: always()
+        run: |
+          if [ -n "${{ secrets.DISCORD_WEBHOOK_URL }}" ]; then
+            STATUS_EMOJI="${{ job.status == 'success' && '✅' || '❌' }}"
+            STATUS_COLOR="${{ job.status == 'success' && 5763719 || 16711680 }}"
+            THUMBNAIL_URL="${{ job.status == 'success' && 'https://devxbd.com/assets/deploy-success.jpg' || 'https://devxbd.com/assets/deploy-failed.jpg' }}"
+            DESCRIPTION="${{ job.status == 'success' && '🚀 **devxbd** - Modern Next.js application successfully deployed to production server via automated CI/CD pipeline.' || '❌ **devxbd** - Deployment failed. Please check the logs for details.' }}"
+            
+            curl -X POST ${{ secrets.DISCORD_WEBHOOK_URL }} \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"embeds\": [
+                  {
+                    \"title\": \"Devxbd Deploy ${{ job.status }}\",
+                    \"description\": \"$DESCRIPTION\",
+                    \"color\": $STATUS_COLOR,
+                    \"timestamp\": \"$(date -u +'%Y-%m-%dT%H:%M:%S.%3NZ')\",
+                    \"author\": {
+                      \"name\": \"GitHub Actions\",
+                      \"url\": \"https://github.com/jishanhoshen/devxbd/actions\",
+                      \"icon_url\": \"https://cdn.jsdelivr.net/npm/simple-icons@v15/icons/github.svg\"
+                    },
+                    \"footer\": {
+                      \"text\": \"Deployed at\"
+                    },
+                    \"image\": {
+                      \"url\": \"https://devxbd.com/opengraph-image.png\"
+                    },
+                    \"thumbnail\": {
+                      \"url\": \"$THUMBNAIL_URL\"
+                    },
+                    \"fields\": [
+                      {
+                        \"name\": \"$STATUS_EMOJI Git Pushed\",
+                        \"value\": \"​\",
+                        \"inline\": false
+                      },
+                      {
+                        \"name\": \"$STATUS_EMOJI GitHub Actions Triggered\",
+                        \"value\": \"​\",
+                        \"inline\": false
+                      },
+                      {
+                        \"name\": \"$STATUS_EMOJI SSH Connection to VPS\",
+                        \"value\": \"​\",
+                        \"inline\": false
+                      },
+                      {
+                        \"name\": \"$STATUS_EMOJI VPS: Git Pull Latest Code\",
+                        \"value\": \"​\",
+                        \"inline\": false
+                      },
+                      {
+                        \"name\": \"$STATUS_EMOJI VPS: Docker Build\",
+                        \"value\": \"​\",
+                        \"inline\": false
+                      },
+                      {
+                        \"name\": \"$STATUS_EMOJI VPS: Docker Compose Restart\",
+                        \"value\": \"​\",
+                        \"inline\": false
+                      },
+                      {
+                        \"name\": \"$STATUS_EMOJI Devxbd Live\",
+                        \"value\": \"​\",
+                        \"inline\": false
+                      }
+                    ]
+                  }
+                ]
+              }"
+          fi
